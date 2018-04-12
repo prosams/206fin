@@ -40,11 +40,11 @@ def cacheRequest(type):
     else:
         print("Making a request for new data...")
         # Make the request and cache the new data
-        resp = requests.get(baseurl, params)
-        CACHE_DICTION[unique_ident] = json.loads(resp.text)
-        dumped_json_cache = json.dumps(CACHE_DICTION)
+        resp = requests.get(unique_ident)
+        resptext = resp.text
+        CACHE_DICTION[unique_ident] = resp.text
         fw = open(CACHE_FNAME,"w")
-        fw.write(dumped_json_cache)
+        fw.write(resptext)
         fw.close() # Close the open file
         return CACHE_DICTION[unique_ident]
 
@@ -62,8 +62,20 @@ html = f.read()
 soup = BeautifulSoup(html, 'html.parser')
 prod = soup.find_all(class_="prod-desc")
 elements = soup.find_all(class_ = "productQvContainer")
-for x in prod:
-    prodDescrption = x.text.strip()
+for x in elements:
+    roughDesc = x.find(class_="prod-desc")
+    finDesc = roughDesc.text.strip()
+    titlerough = x.find(class_ = "prod-title")
+    finTit = titlerough.text.strip()
+    print("++++++++")
+    print(finTit)
+    print(finDesc)
+
+    urlDetails = x.find('a', href = True)["href"]
+
+
+# for x in prod:
+#     prodDescrption = x.text.strip()
     # print(prodDescrption)
 
 # count = 0
