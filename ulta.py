@@ -31,8 +31,7 @@ def uniqueUltaUrl(type): #can be eyes, face, lips, and tools
     total = base + category + end
     return total
 
-def cacheRequest(type):
-    unique_ident = uniqueUltaUrl(type)
+def cacheRequest(url):
 
     if unique_ident in CACHE_DICTION:
         print("Getting cached data...")
@@ -60,26 +59,31 @@ newfile = "htmlulta.json"
 f = open(newfile)
 html = f.read()
 soup = BeautifulSoup(html, 'html.parser')
-prod = soup.find_all(class_="prod-desc")
 elements = soup.find_all(class_ = "productQvContainer")
 for x in elements:
+    print("++++++++")
     roughDesc = x.find(class_="prod-desc")
     finDesc = roughDesc.text.strip()
+
     titlerough = x.find(class_ = "prod-title")
     finTit = titlerough.text.strip()
-    print("++++++++")
-    print(finTit)
-    print(finDesc)
 
     urlDetails = x.find('a', href = True)["href"]
+    finalurl = "https://www.ulta.com" + urlDetails
 
+    print(finTit)
+    print(finDesc)
+    print(finalurl)
 
-# for x in prod:
-#     prodDescrption = x.text.strip()
-    # print(prodDescrption)
+    try:
+        pricerough = x.find(class_ = "regPrice")
+        finPrice = pricerough.text.strip()
+        Sale = False
+        print("Not on Sale")
+    except:
+        pricerough = x.find(class_ = "pro-new-price")
+        finPrice = pricerough.text.strip()
+        Sale = True
+        print("On Sale")
 
-# count = 0
-# for x in prod:
-#     count +=1
-# print(count)
-# print(prod)
+    print(finPrice)
