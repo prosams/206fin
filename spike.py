@@ -1,0 +1,73 @@
+# spike file for 206 final project
+
+import requests
+import json
+from bs4 import BeautifulSoup
+
+# eyeurl = "https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000"
+# eyereq = requests.get(eyeurl)
+# eyetext = eyereq.text
+
+newfile = "htmlulta.json"
+# fw = open(newfile,"w")
+# fw.write(eyetext)
+# fw.close() # Close the open file
+
+f = open(newfile)
+html = f.read()
+soup = BeautifulSoup(html, 'html.parser')
+elements = soup.find_all(class_ = "productQvContainer")
+for x in elements:
+    print("++++++++")
+    roughDesc = x.find(class_="prod-desc")
+    finDesc = roughDesc.text.strip()
+
+    titlerough = x.find(class_ = "prod-title")
+    finTit = titlerough.text.strip()
+
+    urlDetails = x.find('a', href = True)["href"]
+    finalurl = "https://www.ulta.com" + urlDetails
+
+    print(finTit)
+    print(finDesc)
+    print(finalurl)
+    try:
+        pricerough = x.find(class_ = "regPrice")
+        finPrice = pricerough.text.strip()
+        Sale = False
+        print("Not on Sale")
+    except:
+        pricerough = x.find(class_ = "pro-new-price")
+        finPrice = pricerough.text.strip()
+        Sale = True
+        print("On Sale")
+    print(finPrice)
+    #------- specific page crawl starts here
+    second = requests.get(finalurl)
+    secondtext = second.text
+    soup = BeautifulSoup(secondtext, 'html.parser')
+
+    proditem = soup.find(class_ = "product-item-no") #has size and itemnum
+    prodnum = soup.find(id = "itemNumber")
+    finalprodnum = prodnum.text.strip()
+
+    itemsize = proditem.find(id = "itemSize")
+    sizefinal = itemsize.text.strip()
+    itemdim = proditem.find(id = "itemSizeUOM")
+    dimfinal = itemdim.text.strip()
+    sizeNdim = sizefinal + " " + dimfinal
+
+    # percentrecommend = soup.find(class_ = "pr-snapshot-consensus-value pr-rounded")
+    # finalpercentrec = percentrecommend.text.strip()
+    #
+    # numreviewclass = soup.find(class_ = "pr-snapshot-average-based-on-text")
+    # numreview = numreviewclass.find(class_ = "count")
+    # numreviewfinal = numreview.text.strip()
+    #
+    # starrate = soup.find(class_ = "pr-rating pr-rounded average")
+    # starfinal = starrate.text.strip()
+
+    # print(finalprodnum)
+    # print(finalpercentrec + " would recommend")
+    # print(numreviewfinal + " reviews")
+    # print(starfinal + " stars")
