@@ -1,6 +1,7 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import sqlite3
 
 CACHE_FNAME = 'cache.json'
 try:
@@ -29,10 +30,10 @@ def uniqueUltaUrl(type): #can be eyes, face, lips, and tools
 	base = "https://www.ulta.com/"
 	if type == "eyes": # https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000
 		category = "makeup-eyes"
-		end = "?N=26yd&No=0&Nrpp=1000"
+		end = "?N=26yd&No=0&Nrpp=500"
 	elif type == "face":
 		category = "makeup-face"
-		end = "?N=26y3&No=0&Nrpp=1000"
+		end = "?N=26y3&No=0&Nrpp=500"
 	elif type == "lips":
 		category = "makeup-lips"
 		end = "?N=26yq&No=0&Nrpp=1000"
@@ -62,7 +63,7 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 		# print("++++++++")
 		roughDesc = x.find(class_="prod-desc")
 		finDesc = roughDesc.text.strip() # basically product name
-		# print(finDesc)
+		print(finDesc)
 
 		titlerough = x.find(class_ = "prod-title")
 		finTit = titlerough.text.strip() # product brand
@@ -83,8 +84,9 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 
 		#-------------- specific page crawl starts here ----------------
 
-		second = requests.get(finalurl)
-		secondtext = second.text
+		# second = requests.get(finalurl)
+		# secondtext = second.text
+		secondtext = cacheRequest(finalurl)
 		soup = BeautifulSoup(secondtext, 'html.parser')
 
 		try:
@@ -102,7 +104,7 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 			sizeNdim = itemsize.text.strip()
 		except:
 			sizeNdim = None
-		print(size)
+		# print(sizeNdim)
 
 		try:
 			percentrecommend = soup.find(class_ = "pr-snapshot-consensus-value pr-rounded")
@@ -153,55 +155,58 @@ allprodDict["Face"] = facetup
 allprodDict["Tool"] = tooltup
 
 megalist = eyetup + liptup + facetup + tooltup
+dumped = json.dumps(megalist)
 
 fw = open("allprodlist.json","w")
-fw.write(megalist)
+fw.write(dumped)
 fw.close() # Close the open file
 
 print(allprodDict)
 
 DBNAME = "ultadata.db"
 def init_db(x):
-    conn = sqlite3.connect(DBNAME)
-    cur = conn.cursor()
+	conn = sqlite3.connect(DBNAME)
+	cur = conn.cursor()
 	statement = '''
-            DROP TABLE IF EXISTS 'Products';
-        '''
-    cur.execute(statement)
-    conn.commit()
-    statement = '''
-        CREATE TABLE 'Products' (
-            'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-            'Name' TEXT NOT NULL,
-            'Brand' TEXT NOT NULL,
-            'Cost' REAL NOT NULL,
-            'ItemNum' TEXT NOT NULL,
-            'ItemSizeOZ' REAL,
-            'PercentRec' REAL,
-            'Reviews' INTEGER,
-            'StarRating' REAL,
-            'Sale' TEXT NOT NULL,
-            'Url' TEXT NOT NULL,
-            );
-        '''
+			DROP TABLE IF EXISTS 'Products';
+		'''
 	cur.execute(statement)
 	conn.commit()
+	statement1 = '''
+		CREATE TABLE 'Products' (
+			'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+			'Name' TEXT NOT NULL,
+			'Brand' TEXT NOT NULL,
+			'Cost' REAL NOT NULL,
+			'ItemNum' TEXT NOT NULL,
+			'ItemSizeOZ' REAL,
+			'PercentRec' REAL,
+			'Reviews' INTEGER,
+			'StarRating' REAL,
+			'Sale' TEXT NOT NULL,
+			'Url' TEXT NOT NULL
+			);
+		'''
+	cur.execute(statement1)
+	conn.commit()
 
-	statement = '''
-            DROP TABLE IF EXISTS 'Categories';
-        '''
-	cur.execute(statement)
-    conn.commit()
+	statement2 = '''
+			DROP TABLE IF EXISTS 'Categories';
+		'''
+	cur.execute(statement2)
+	conn.commit()
 
 	conn = sqlite3.connect(DBNAME)
-    cur = conn.cursor()
-    statement = '''
-        CREATE TABLE 'Categories' (
-            'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
-            'Category' TEXT NOT NULL,
-            'BrandsTotalNum' TEXT NOT NULL,
-            'ProductsTotalNum' TEXT NOT NULL,
-            );
-        '''
-	cur.execute(statement)
+	cur = conn.cursor()
+	statement3 = '''
+		CREATE TABLE 'Categories' (
+			'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+			'Category' TEXT NOT NULL,
+			'BrandsTotalNum' TEXT NOT NULL,
+			'ProductsTotalNum' TEXT NOT NULL
+			);
+		'''
+	cur.execute(statement3)
 	conn.commit()
+
+init_db(DBNAME)
