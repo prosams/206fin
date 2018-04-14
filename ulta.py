@@ -49,6 +49,15 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 	soup = BeautifulSoup(page, 'html.parser')
 	elements = soup.find_all(class_ = "productQvContainer")
 
+	if kind == "eyes":
+		category = "Eye"
+	elif kind == "lips":
+		category = "Lip"
+	elif kind == "face":
+		category = "Face"
+	elif kind == "tools":
+		category = "Tool"
+
 	for x in elements:
 		# print("++++++++")
 		roughDesc = x.find(class_="prod-desc")
@@ -97,7 +106,8 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 
 		try:
 			percentrecommend = soup.find(class_ = "pr-snapshot-consensus-value pr-rounded")
-			finalpercentrec = percentrecommend.text.strip()
+			percentrec = percentrecommend.text.strip()
+			finalpercentrec = percentrec[:-1]
 			# print(finalpercentrec)
 		except:
 			finalpercentrec = "No '% would recommend' available"
@@ -121,7 +131,7 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 		# print(finalpercentrec + " would recommend")
 		# print(numreviewfinal + " reviews")
 		# print(starfinal + " stars")
-		ultimateTuple = (finDesc, finTit, finPrice, finalprodnum, sizeNdim, finalpercentrec, numreviewfinal, starfinal, Sale, finalurl)
+		ultimateTuple = (finDesc, finTit, category, finPrice, finalprodnum, sizeNdim, finalpercentrec, numreviewfinal, starfinal, Sale, finalurl)
 		returnlist.append(ultimateTuple)
 		# print(ultimateTuple)
 	# print(returnlist)
@@ -142,32 +152,56 @@ allprodDict["Lip"] = liptup
 allprodDict["Face"] = facetup
 allprodDict["Tool"] = tooltup
 
+megalist = eyetup + liptup + facetup + tooltup
+
+fw = open("allprodlist.json","w")
+fw.write(megalist)
+fw.close() # Close the open file
+
 print(allprodDict)
 
 DBNAME = "ultadata.db"
 def init_db(x):
-    conn = sqlite3.connect("ultadata.db")
+    conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
-
 	statement = '''
             DROP TABLE IF EXISTS 'Products';
         '''
     cur.execute(statement)
     conn.commit()
-
     statement = '''
-        CREATE TABLE 'Bars' (
+        CREATE TABLE 'Products' (
             'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
             'Name' TEXT NOT NULL,
             'Brand' TEXT NOT NULL,
             'Cost' REAL NOT NULL,
             'ItemNum' TEXT NOT NULL,
-            'ItemSize' ,
-            'CompanyLocation' TEXT NOT NULL,
-            'CompanyLocationId' INTEGER,
-            'Rating' REAL NOT NULL,
-            'BeanType' TEXT NOT NULL,
-            'BroadBeanOrigin' TEXT NOT NULL,
-            'BroadBeanOriginId' INTEGER
+            'ItemSizeOZ' REAL,
+            'PercentRec' REAL,
+            'Reviews' INTEGER,
+            'StarRating' REAL,
+            'Sale' TEXT NOT NULL,
+            'Url' TEXT NOT NULL,
             );
         '''
+	cur.execute(statement)
+	conn.commit()
+
+	statement = '''
+            DROP TABLE IF EXISTS 'Categories';
+        '''
+	cur.execute(statement)
+    conn.commit()
+
+	conn = sqlite3.connect(DBNAME)
+    cur = conn.cursor()
+    statement = '''
+        CREATE TABLE 'Categories' (
+            'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
+            'Category' TEXT NOT NULL,
+            'BrandsTotalNum' TEXT NOT NULL,
+            'ProductsTotalNum' TEXT NOT NULL,
+            );
+        '''
+	cur.execute(statement)
+	conn.commit()
