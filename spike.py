@@ -4,6 +4,14 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
+
+# eyereq = cacheRequest("https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000")
+# # this is because max numbers of products on a page is 1000 but there are like
+# # 1700 products total for eye stuff so u need to do it twice
+# facereq = cacheRequest("https://www.ulta.com/makeup-face?N=26y3&No=0&Nrpp=1000")
+# lipreq = cacheRequest("https://www.ulta.com/makeup-lips?N=26yq&No=0&Nrpp=1000")
+# toolreq = cacheRequest("https://www.ulta.com/tools-brushes-makeup-brushes-tools?N=27hn&No=0&Nrpp=1000")
+
 # eyeurl = "https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000"
 # eyereq = requests.get(eyeurl)
 # eyetext = eyereq.text
