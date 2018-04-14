@@ -74,12 +74,12 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 		try:
 			pricerough = x.find(class_ = "regPrice")
 			finPrice = pricerough.text.strip()
-			Sale = False
+			Sale = "No"
 			# print("Not on Sale")
 		except:
 			pricerough = x.find(class_ = "pro-new-price")
 			finPrice = pricerough.text.strip()
-			Sale = True
+			Sale = "Yes"
 			# print("On Sale")
 
 		#-------------- specific page crawl starts here ----------------
@@ -112,7 +112,7 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 			finalpercentrec = percentrec[:-1]
 			# print(finalpercentrec)
 		except:
-			finalpercentrec = "No '% would recommend' available"
+			finalpercentrec = None
 			# print(finalpercentrec)
 
 		try:
@@ -153,10 +153,8 @@ allprodDict["Eye"] = eyetup
 allprodDict["Lip"] = liptup
 allprodDict["Face"] = facetup
 allprodDict["Tool"] = tooltup
-
 megalist = eyetup + liptup + facetup + tooltup
 dumped = json.dumps(megalist)
-
 fw = open("allprodlist.json","w")
 fw.write(dumped)
 fw.close() # Close the open file
@@ -177,8 +175,9 @@ def init_db(x):
 			'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
 			'Name' TEXT NOT NULL,
 			'Brand' TEXT NOT NULL,
+			'Category' TEXT NOT NULL,
 			'Cost' REAL NOT NULL,
-			'ItemNum' TEXT NOT NULL,
+			'ItemNum' TEXT,
 			'ItemSizeOZ' REAL,
 			'PercentRec' REAL,
 			'Reviews' INTEGER,
@@ -195,7 +194,6 @@ def init_db(x):
 		'''
 	cur.execute(statement2)
 	conn.commit()
-
 	conn = sqlite3.connect(DBNAME)
 	cur = conn.cursor()
 	statement3 = '''
@@ -209,4 +207,21 @@ def init_db(x):
 	cur.execute(statement3)
 	conn.commit()
 
+def fillthings():
+	conn = sqlite3.connect("ultadata.db")
+	cur = conn.cursor()
+
+	myfile = open("allprodlist.json", 'r')
+	data = myfile.read()
+	loaded = json.loads(data) # this should be a list of lists
+
+	for x in loaded:
+		insertion = (None, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10])
+		statement = 'INSERT INTO "Products"'
+		statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+		cur.execute(statement, insertion)
+		# at the end of this hopefully the products table has been filled
+		conn.commit()
+
 init_db(DBNAME)
+fillthings()

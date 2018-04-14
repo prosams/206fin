@@ -70,6 +70,42 @@ def fillthings():
 		# at the end of this hopefully the products table has been filled
 		conn.commit()
 
+	eyebrandlist = []
+	eyeprodlist = []
+	toolbrandlist = []
+	toolprodlist = []
+	facebrandlist = []
+	faceprodlist = []
+	lipbrandlist = []
+	lipprodlist = []
+
+	for x in loaded:
+		if x[2] == "Eye":
+			eyeprodlist.append(x[0])
+			if x[1] not in eyebrandlist and not None:
+				eyebrandlist.append(x[1])
+		elif x[2] == "Tool":
+			toolprodlist.append(x[0])
+			if x[1] not in toolbrandlist and not None:
+				toolbrandlist.append(x[1])
+		elif x[2] == "Face":
+			faceprodlist.append(x[0])
+			if x[1] not in facebrandlist and not None:
+				facebrandlist.append(x[1])
+		elif x[2] == "Lip":
+			lipprodlist.append(x[0])
+			if x[1] not in lipbrandlist and not None:
+				lipbrandlist.append(x[1])
+
+	# print(eyeprodlist)
+	# print(len(eyeprodlist))
+	# print(eyebrandlist)
+	# print(len(eyebrandlist))
+	print(facebrandlist)
+	print(len(facebrandlist))
+	print(lipbrandlist)
+	print(len(lipbrandlist))
+
 fillthings()
 
 # eyereq = cacheRequest("https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000")
