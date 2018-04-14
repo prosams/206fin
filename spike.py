@@ -19,8 +19,9 @@ def init_db(x):
 			'Id' INTEGER PRIMARY KEY AUTOINCREMENT,
 			'Name' TEXT NOT NULL,
 			'Brand' TEXT NOT NULL,
+			'Category' TEXT NOT NULL,
 			'Cost' REAL NOT NULL,
-			'ItemNum' TEXT NOT NULL,
+			'ItemNum' TEXT,
 			'ItemSizeOZ' REAL,
 			'PercentRec' REAL,
 			'Reviews' INTEGER,
@@ -52,6 +53,24 @@ def init_db(x):
 	conn.commit()
 
 init_db(DBNAME)
+
+def fillthings():
+	conn = sqlite3.connect("ultadata.db")
+	cur = conn.cursor()
+
+	myfile = open("allprodlist.json", 'r')
+	data = myfile.read()
+	loaded = json.loads(data) # this should be a list of lists
+
+	for x in loaded:
+		insertion = (None, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10])
+		statement = 'INSERT INTO "Products"'
+		statement += 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+		cur.execute(statement, insertion)
+		# at the end of this hopefully the products table has been filled
+		conn.commit()
+
+fillthings()
 
 # eyereq = cacheRequest("https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000")
 # # this is because max numbers of products on a page is 1000 but there are like
@@ -113,17 +132,17 @@ newfile = "htmlulta.json"
 #     dimfinal = itemdim.text.strip()
 #     sizeNdim = sizefinal + " " + dimfinal
 
-    # percentrecommend = soup.find(class_ = "pr-snapshot-consensus-value pr-rounded")
-    # finalpercentrec = percentrecommend.text.strip()
-    #
-    # numreviewclass = soup.find(class_ = "pr-snapshot-average-based-on-text")
-    # numreview = numreviewclass.find(class_ = "count")
-    # numreviewfinal = numreview.text.strip()
-    #
-    # starrate = soup.find(class_ = "pr-rating pr-rounded average")
-    # starfinal = starrate.text.strip()
+	# percentrecommend = soup.find(class_ = "pr-snapshot-consensus-value pr-rounded")
+	# finalpercentrec = percentrecommend.text.strip()
+	#
+	# numreviewclass = soup.find(class_ = "pr-snapshot-average-based-on-text")
+	# numreview = numreviewclass.find(class_ = "count")
+	# numreviewfinal = numreview.text.strip()
+	#
+	# starrate = soup.find(class_ = "pr-rating pr-rounded average")
+	# starfinal = starrate.text.strip()
 
-    # print(finalprodnum)
-    # print(finalpercentrec + " would recommend")
-    # print(numreviewfinal + " reviews")
-    # print(starfinal + " stars")
+	# print(finalprodnum)
+	# print(finalpercentrec + " would recommend")
+	# print(numreviewfinal + " reviews")
+	# print(starfinal + " stars")
