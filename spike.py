@@ -52,7 +52,7 @@ def init_db(x):
 	cur.execute(statement3)
 	conn.commit()
 
-init_db(DBNAME)
+# init_db(DBNAME)
 
 def fillthings():
 	conn = sqlite3.connect("ultadata.db")
@@ -97,14 +97,20 @@ def fillthings():
 			if x[1] not in lipbrandlist and not None:
 				lipbrandlist.append(x[1])
 
-	# print(eyeprodlist)
-	# print(len(eyeprodlist))
-	# print(eyebrandlist)
-	# print(len(eyebrandlist))
-	print(facebrandlist)
-	print(len(facebrandlist))
-	print(lipbrandlist)
-	print(len(lipbrandlist))
+	eyetup = ("Eye", len(eyebrandlist), len(eyeprodlist))
+	liptup = ("Lip", len(lipbrandlist), len(lipprodlist))
+	facetup = ("Face", len(facebrandlist), len(faceprodlist))
+	tooltup = ("Tool", len(toolbrandlist), len(toolprodlist))
+	categorytuple = (eyetup, liptup, facetup, tooltup)
+
+	for tup in categorytuple:
+		insert = (None, tup[0], tup[1], tup[2])
+		statement = 'INSERT INTO "Categories" '
+		statement += 'VALUES (?, ?, ?, ?)'
+		cur.execute(statement, insert)
+		conn.commit()
+
+	print("ok it made it here!!")
 
 fillthings()
 
