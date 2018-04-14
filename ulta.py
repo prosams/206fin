@@ -139,27 +139,28 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 	# print(returnlist)
 	return returnlist
 
-eyelist = getAllProdType("eyes")
-eyetup = eyelist
-liplist = getAllProdType("lips")
-liptup = liplist
-facelist = getAllProdType("face")
-facetup = facelist
-toolist = getAllProdType("tools")
-tooltup = toolist
+ # ************ THIS CODE HERE IS TO CREATE THE JSON FILE THAT WILL BE USED FOR PRODUCTS TABLE *******
+def JsonFileCreator():
+	eyelist = getAllProdType("eyes")
+	eyetup = eyelist
+	liplist = getAllProdType("lips")
+	liptup = liplist
+	facelist = getAllProdType("face")
+	facetup = facelist
+	toolist = getAllProdType("tools")
+	tooltup = toolist
 
-allprodDict = {}
-allprodDict["Eye"] = eyetup
-allprodDict["Lip"] = liptup
-allprodDict["Face"] = facetup
-allprodDict["Tool"] = tooltup
-megalist = eyetup + liptup + facetup + tooltup
-dumped = json.dumps(megalist)
-fw = open("allprodlist.json","w")
-fw.write(dumped)
-fw.close() # Close the open file
-
-print(allprodDict)
+	allprodDict = {}
+	allprodDict["Eye"] = eyetup
+	allprodDict["Lip"] = liptup
+	allprodDict["Face"] = facetup
+	allprodDict["Tool"] = tooltup
+	megalist = eyetup + liptup + facetup + tooltup
+	dumped = json.dumps(megalist)
+	fw = open("allprodlist.json","w")
+	fw.write(dumped)
+	fw.close() # Close the open file
+ # ******************* code for json file ends here **********************
 
 DBNAME = "ultadata.db"
 def init_db(x):
@@ -210,11 +211,9 @@ def init_db(x):
 def fillthings():
 	conn = sqlite3.connect("ultadata.db")
 	cur = conn.cursor()
-
 	myfile = open("allprodlist.json", 'r')
 	data = myfile.read()
 	loaded = json.loads(data) # this should be a list of lists
-
 	for x in loaded:
 		insertion = (None, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10])
 		statement = 'INSERT INTO "Products"'
@@ -223,5 +222,43 @@ def fillthings():
 		# at the end of this hopefully the products table has been filled
 		conn.commit()
 
+	eyebrandlist = []
+	eyeprodlist = []
+	toolbrandlist = []
+	toolprodlist = []
+	facebrandlist = []
+	faceprodlist = []
+	lipbrandlist = []
+	lipprodlist = []
+	for x in loaded:
+		if x[2] == "Eye":
+			eyeprodlist.append(x[0])
+			if x[1] not in eyebrandlist and not None:
+				eyebrandlist.append(x[1])
+		elif x[2] == "Tool":
+			toolprodlist.append(x[0])
+			if x[1] not in toolbrandlist and not None:
+				toolbrandlist.append(x[1])
+		elif x[2] == "Face":
+			faceprodlist.append(x[0])
+			if x[1] not in facebrandlist and not None:
+				facebrandlist.append(x[1])
+		elif x[2] == "Lip":
+			lipprodlist.append(x[0])
+			if x[1] not in lipbrandlist and not None:
+				lipbrandlist.append(x[1])
+	eyetup = ("Eye", len(eyebrandlist), len(eyeprodlist))
+	liptup = ("Lip", len(lipbrandlist), len(lipprodlist))
+	facetup = ("Face", len(facebrandlist), len(faceprodlist))
+	tooltup = ("Tool", len(toolbrandlist), len(toolprodlist))
+	categorytuple = (eyetup, liptup, facetup, tooltup)
+	for tup in categorytuple:
+		insert = (None, tup[0], tup[1], tup[2])
+		statement = 'INSERT INTO "Categories" '
+		statement += 'VALUES (?, ?, ?, ?)'
+		cur.execute(statement, insert)
+		conn.commit()
+		
+JsonFileCreator()
 init_db(DBNAME)
 fillthings()

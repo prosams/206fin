@@ -5,6 +5,28 @@ import json
 from bs4 import BeautifulSoup
 import sqlite3
 
+# eyelist = getAllProdType("eyes")
+# eyetup = eyelist
+# liplist = getAllProdType("lips")
+# liptup = liplist
+# facelist = getAllProdType("face")
+# facetup = facelist
+# toolist = getAllProdType("tools")
+# tooltup = toolist
+#
+# allprodDict = {}
+# allprodDict["Eye"] = eyetup
+# allprodDict["Lip"] = liptup
+# allprodDict["Face"] = facetup
+# allprodDict["Tool"] = tooltup
+# megalist = eyetup + liptup + facetup + tooltup
+# dumped = json.dumps(megalist)
+# fw = open("allprodlist.json","w")
+# fw.write(dumped)
+# fw.close() # Close the open file
+#
+# print(allprodDict)
+
 DBNAME = "ultadata.db"
 def init_db(x):
 	conn = sqlite3.connect(DBNAME)
