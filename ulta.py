@@ -1,7 +1,10 @@
 import requests
+import plotly.plotly as py
+import plotly.graph_objs as go
 import json
 from bs4 import BeautifulSoup
 import sqlite3
+import random
 
 CACHE_FNAME = 'cache.json'
 try:
@@ -258,7 +261,69 @@ def fillthings():
 		statement += 'VALUES (?, ?, ?, ?)'
 		cur.execute(statement, insert)
 		conn.commit()
-		
-JsonFileCreator()
-init_db(DBNAME)
-fillthings()
+
+def process_command():
+
+	DB_NAME = 'ultadata.db'
+	try:
+		conn = sqlite3.connect(DB_NAME)
+		cur = conn.cursor()
+	except Error as e:
+		print(e)
+
+	query = "SELECT * FROM 'products'"
+	cur.execute(query)
+							# do a sql statement to get the results
+	basic_statement = '''
+	SELECT Name, starrating
+	FROM Products
+	JOIN Categories
+	ON Categories.Category = Products.Category
+	ORDER BY Products.starrating DESC
+	'''
+	strulta = str(basic_statement)
+	cur.execute(strulta)
+	plotlytuplist = []
+	for row in cur:
+		try:
+			pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
+			plotlytuplist.append(pair)
+		except:
+			continue
+	print(plotlytuplist)
+
+	trace1 = go.Scatter(
+			type='scatter',
+			x=[x[0] for x in plotlytuplist],
+			y=[x[1] for x in plotlytuplist],
+			marker=dict(
+			color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
+			size=10
+			),
+				line=dict(
+				color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
+				width = 4
+				),
+				mode='markers+lines'
+			)
+	data = [trace1]
+
+	layout = go.Layout(
+				title="sam is hot",
+				xaxis = dict(
+				range=len(plotlytuplist)
+			),
+				yaxis = dict(
+				range=[0, 5]
+			),
+				height=500,
+				width=1000
+		)
+
+	fig = go.Figure(data=data, layout=layout)
+	py.plot(fig, filename = 'ulta-line')
+
+#JsonFileCreator()
+#init_db(DBNAME)
+#fillthings()
+process_command()
