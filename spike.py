@@ -243,7 +243,7 @@ def avbrand(): # this function sorts by the average star rating of a brand
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
 
-def costPerOz():
+def costPerOz(): #this is exactly  what the function says i t is lol
 	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
@@ -289,10 +289,59 @@ def costPerOz():
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
 
-# avbrand()
-costPerOz()
-# process_command()
+def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
+	DB_NAME = 'ultadata.db'   # (to find number of people who would recommend)
+	try:
+		conn = sqlite3.connect(DB_NAME)
+		cur = conn.cursor()
+	except Error as e:
+		print(e)
 
+	basic_statement = '''
+	SELECT Name, (CAST(PercentRec AS DECIMAL)/100)*Reviews
+	FROM Products
+	JOIN Categories
+	ON Categories.Id = Products.Category
+	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
+	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews DESC
+	'''
+
+	cur.execute(basic_statement)
+	plotlytuplist = []
+	for row in cur:
+		try:
+			pair = (row[0], round(float(row[1]), 2)) #this rounds like in project 3
+			plotlytuplist.append(pair)
+		except:
+			continue
+	# print(plotlytuplist)
+	trace1 = go.Bar(
+		x=[x[0] for x in plotlytuplist],
+		y=[x[1] for x in plotlytuplist]
+		)
+	data = [trace1]
+
+	layout = go.Layout(
+				title = "Number of People Who Would Recommend",
+				xaxis = dict(
+				range = len(plotlytuplist)
+			),
+				yaxis = dict(
+				range = [0, 5000]),
+				height=600,
+				width=1000)
+
+	fig = go.Figure(data=data, layout=layout)
+	py.plot(fig, filename = 'ulta-bar')
+
+
+
+
+
+# avbrand()
+# costPerOz()
+# process_command()
+numberPeopleRecommend()
 
 # eyereq = cacheRequest("https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000")
 # # this is because max numbers of products on a page is 1000 but there are like

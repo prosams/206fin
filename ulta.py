@@ -258,7 +258,7 @@ def fillthings():
 		cur.execute(statement, insert)
 		conn.commit()
 
-def process_command():
+def starRatingFunc():
 	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
@@ -409,5 +409,5 @@ def costPerOz():
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()
-# process_command()
+# starRatingFunc()
 # avbrand()
