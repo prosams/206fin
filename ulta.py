@@ -451,6 +451,62 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
 
+def costNStarCorrelation():
+	DB_NAME = 'ultadata.db'
+	try:
+		conn = sqlite3.connect(DB_NAME)
+		cur = conn.cursor()
+	except Error as e:
+		print(e)
+	query = "SELECT * FROM 'products'"
+	cur.execute(query)
+
+	basic_statement = '''
+	SELECT starrating, Cost, Name
+	FROM Products
+	JOIN Categories
+	ON Categories.Id = Products.Category
+	WHERE starrating IS NOT NULL
+	ORDER BY Products.starrating DESC
+	'''
+	cur.execute(basic_statement)
+	plotlytuplist = []
+	for row in cur:
+		try:
+			pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
+			plotlytuplist.append(pair)
+		except:
+			continue
+	print(plotlytuplist)
+
+	trace1 = go.Scatter(
+			type='scatter',
+			y =[x[0] for x in plotlytuplist],
+			x =[x[1] for x in plotlytuplist],
+			mode = 'markers',
+			name = 'markers',
+			text = [x[2] for x in plotlytuplist] # this names each individual point
+			)
+	data = [trace1]
+
+	layout = go.Layout(
+				title = "Correlation Between Cost of Product + Star Rating",
+				xaxis = dict(
+				title = 'Cost of Product',
+				range = len(plotlytuplist)
+			),
+				yaxis = dict(
+				title = 'Star Rating out of Five Stars',
+				range = [0, 5.5]
+			),
+				height = 1000,
+				width = 1000
+		)
+
+	fig = go.Figure(data=data, layout=layout)
+	py.plot(fig, filename = 'star-cost-correlation')
+
+
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()

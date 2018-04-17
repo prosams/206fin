@@ -137,7 +137,7 @@ import plotly.graph_objs as go
 # 	print("ok it made it here!!")
 
 
-def process_command():
+def costNStarCorrelation():
 	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
@@ -148,18 +148,18 @@ def process_command():
 	cur.execute(query)
 
 	basic_statement = '''
-	SELECT Name, starrating
+	SELECT starrating, Cost, Name
 	FROM Products
 	JOIN Categories
 	ON Categories.Id = Products.Category
+	WHERE starrating IS NOT NULL
 	ORDER BY Products.starrating DESC
 	'''
-	strulta = str(basic_statement)
-	cur.execute(strulta)
+	cur.execute(basic_statement)
 	plotlytuplist = []
 	for row in cur:
 		try:
-			pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
+			pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
 			plotlytuplist.append(pair)
 		except:
 			continue
@@ -167,34 +167,32 @@ def process_command():
 
 	trace1 = go.Scatter(
 			type='scatter',
-			x=[x[0] for x in plotlytuplist],
-			y=[x[1] for x in plotlytuplist],
-			marker=dict(
-			color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
-			size=10
-			),
-				line=dict(
-				color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
-				width = 4
-				),
-				mode='markers+lines'
+			y =[x[0] for x in plotlytuplist],
+			x =[x[1] for x in plotlytuplist],
+			mode = 'markers',
+			name = 'markers',
+			text = [x[2] for x in plotlytuplist] # this names each individual point
 			)
 	data = [trace1]
 
 	layout = go.Layout(
-				title="testgraph",
+				title = "Correlation Between Cost of Product + Star Rating",
 				xaxis = dict(
-				range=len(plotlytuplist)
+				title = 'Cost of Product',
+				range = len(plotlytuplist)
 			),
 				yaxis = dict(
-				range=[0, 5]
+				title = 'Star Rating out of Five Stars',
+				range = [0, 5.5]
 			),
-				height=500,
-				width=1000
+				height = 1000,
+				width = 1000
 		)
 
 	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ulta-line')
+	py.plot(fig, filename = 'star-cost-correlation')
+
+
 
 def avbrand(): # this function sorts by the average star rating of a brand
 	DB_NAME = 'ultadata.db'
@@ -336,13 +334,10 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	py.plot(fig, filename = 'ulta-bar')
 
 
-
-
-
 # avbrand()
 # costPerOz()
 # process_command()
-numberPeopleRecommend()
+# numberPeopleRecommend()
 
 # eyereq = cacheRequest("https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000")
 # # this is because max numbers of products on a page is 1000 but there are like
