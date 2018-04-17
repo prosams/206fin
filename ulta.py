@@ -6,6 +6,19 @@ from bs4 import BeautifulSoup
 import sqlite3
 import random
 
+class UltaProd:
+	def __init__(self):
+		self.name = name
+		self.brand = brand
+		self.cat = cat
+		self.cost = cost
+		self.retailnum = "No retail item number available."
+		self.sizeoz = "No size available."
+		self.percent = "No percent who would recommend available."
+		self.star = "No star rating available."
+		self.sale = "Cannot tell if product is on sale."
+		self.url = url
+
 CACHE_FNAME = 'cache.json'
 try:
 	cache_file = open(CACHE_FNAME, 'r')
@@ -284,7 +297,7 @@ def starRatingFunc():
 			continue
 	# print(plotlytuplist)
 
-	trace1 = go.Scatter(
+	trace1 = go.Bar(
 			type='scatter',
 			x=[x[0] for x in plotlytuplist],
 			y=[x[1] for x in plotlytuplist],
@@ -299,7 +312,7 @@ def starRatingFunc():
 			),
 				yaxis = dict(
 				title = 'Star Rating',
-				range=[0, 5]
+				range = [0, 5]
 			),
 				height = 1000,
 				width = 2000
@@ -417,10 +430,9 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	JOIN Categories
 	ON Categories.Id = Products.Category
 	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
-	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews DESC
-	LIMIT 100
+	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews
+	ASC LIMIT 100
 	'''
-
 	cur.execute(basic_statement)
 	plotlytuplist = []
 	for row in cur:
@@ -444,9 +456,9 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 			),
 				yaxis = dict(
 				title = 'Number of People Who Would Recommend',
-				range = [0, 12000]),
-				height = 1500,
-				width = 2000)
+				range = [0, 50]),
+				height = 800,
+				width = 1500)
 
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
@@ -510,7 +522,8 @@ def costNStarCorrelation():
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()
-starRatingFunc() # ask about this func it ugly
+# starRatingFunc() # ask about this func it ugly
 # avbrand()
 # costPerOz()
-# numberPeopleRecommend()
+# costNStarCorrelation()
+numberPeopleRecommend()
