@@ -406,6 +406,52 @@ def costPerOz():
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
 
+def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
+	DB_NAME = 'ultadata.db'   # (to find number of people who would recommend)
+	try:
+		conn = sqlite3.connect(DB_NAME)
+		cur = conn.cursor()
+	except Error as e:
+		print(e)
+
+	basic_statement = '''
+	SELECT Name, (CAST(PercentRec AS DECIMAL)/100)*Reviews
+	FROM Products
+	JOIN Categories
+	ON Categories.Id = Products.Category
+	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
+	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews DESC
+	LIMIT 50
+	'''
+
+	cur.execute(basic_statement)
+	plotlytuplist = []
+	for row in cur:
+		try:
+			pair = (row[0], round(float(row[1]), 2)) #this rounds like in project 3
+			plotlytuplist.append(pair)
+		except:
+			continue
+	# print(plotlytuplist)
+	trace1 = go.Bar(
+		x=[x[0] for x in plotlytuplist],
+		y=[x[1] for x in plotlytuplist]
+		)
+	data = [trace1]
+
+	layout = go.Layout(
+				title = "Number of People Who Would Recommend",
+				xaxis = dict(
+				range = len(plotlytuplist)
+			),
+				yaxis = dict(
+				range = [0, 12000]),
+				height=700,
+				width=1000)
+
+	fig = go.Figure(data=data, layout=layout)
+	py.plot(fig, filename = 'ulta-bar')
+
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()

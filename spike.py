@@ -304,6 +304,7 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	ON Categories.Id = Products.Category
 	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
 	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews DESC
+	LIMIT 50
 	'''
 
 	cur.execute(basic_statement)
@@ -327,8 +328,8 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 				range = len(plotlytuplist)
 			),
 				yaxis = dict(
-				range = [0, 5000]),
-				height=600,
+				range = [0, 12000]),
+				height=700,
 				width=1000)
 
 	fig = go.Figure(data=data, layout=layout)
