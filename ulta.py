@@ -282,37 +282,30 @@ def starRatingFunc():
 			plotlytuplist.append(pair)
 		except:
 			continue
-	print(plotlytuplist)
+	# print(plotlytuplist)
 
 	trace1 = go.Scatter(
 			type='scatter',
 			x=[x[0] for x in plotlytuplist],
 			y=[x[1] for x in plotlytuplist],
-			marker=dict(
-			color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
-			size=10
-			),
-				line=dict(
-				color=['rgb({},{},{})'.format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200)) for x in plotlytuplist],
-				width = 4
-				),
-				mode='markers+lines'
 			)
 	data = [trace1]
 
 	layout = go.Layout(
-				title="testgraph",
+				title = "Products ordered by star rating",
 				xaxis = dict(
+				title = 'Name of Product',
 				range=len(plotlytuplist)
 			),
 				yaxis = dict(
+				title = 'Star Rating',
 				range=[0, 5]
 			),
-				height=500,
-				width=1000
+				height = 1000,
+				width = 2000
 		)
 	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ulta-line')
+	py.plot(fig, filename = 'ultastarrating')
 
 def avbrand(): # this function sorts by the average star rating of a brand
 	DB_NAME = 'ultadata.db'
@@ -338,7 +331,7 @@ def avbrand(): # this function sorts by the average star rating of a brand
 			plotlytuplist.append(pair)
 		except:
 			continue
-	print(plotlytuplist)
+	# print(plotlytuplist)
 
 	trace1 = go.Bar(
 		x=[x[0] for x in plotlytuplist],
@@ -349,16 +342,18 @@ def avbrand(): # this function sorts by the average star rating of a brand
 	layout = go.Layout(
 				title = "Average Star Rating for Brands Overall",
 				xaxis = dict(
+				title = 'Brand Name',
 				range = len(plotlytuplist)
 			),
 				yaxis = dict(
+				title = 'Average Star Rating (Out of 5 Stars)',
 				range = [0, 5]
 			),
-				height=500,
-				width=1000
+				height = 1000,
+				width = 2000
 		)
 	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ulta-bar')
+	py.plot(fig, filename = 'avrating')
 
 def costPerOz():
 	DB_NAME = 'ultadata.db'
@@ -396,15 +391,17 @@ def costPerOz():
 	layout = go.Layout(
 				title = "Product Cost Per Ounce",
 				xaxis = dict(
+				title = 'Product Name',
 				range = len(plotlytuplist)
 			),
 				yaxis = dict(
-				range = [0, 5000]),
-				height=600,
-				width=1000)
+				title = 'Cost in USD',
+				range = [0, 10000]),
+				height = 1000,
+				width = 2000)
 
 	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ulta-bar')
+	py.plot(fig, filename = 'ultacostperounce')
 
 def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
 	DB_NAME = 'ultadata.db'   # (to find number of people who would recommend)
@@ -421,7 +418,7 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	ON Categories.Id = Products.Category
 	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
 	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews DESC
-	LIMIT 50
+	LIMIT 100
 	'''
 
 	cur.execute(basic_statement)
@@ -440,14 +437,16 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	data = [trace1]
 
 	layout = go.Layout(
-				title = "Number of People Who Would Recommend",
+				title = "Number of People Who Would Recommend (% Recommend * Number of Reviews)",
 				xaxis = dict(
+				title = 'Product Name',
 				range = len(plotlytuplist)
 			),
 				yaxis = dict(
+				title = 'Number of People Who Would Recommend',
 				range = [0, 12000]),
-				height=700,
-				width=1000)
+				height = 1500,
+				width = 2000)
 
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
@@ -455,5 +454,7 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()
-# starRatingFunc()
+starRatingFunc() # ask about this func it ugly
 # avbrand()
+# costPerOz()
+# numberPeopleRecommend()
