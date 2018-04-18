@@ -493,7 +493,7 @@ def simpleinteractive():
 	cur = conn.cursor()
 	returnlist = []
 
-	if "brand" in input:
+	if "brand" in userstring:
 		print("Printing the brand names and their average star rating.")
 		basic_statement = '''
 		SELECT Brand, AVG(StarRating)
@@ -506,6 +506,7 @@ def simpleinteractive():
 		'''
 		cur.execute(basic_statement)
 		conn.commit()
+
 		for row in cur:
 			indiv = (row[0], round(float(row[1]), 2))
 			returnlist.append(list(indiv))
@@ -514,8 +515,13 @@ def simpleinteractive():
 			print(final)
 		print("If you would like to see a Plotly visualization of this data, type [avbrand]")
 
-	if "generalprod" in input:
+	if "generalprod" in userstring:
+		limitnum = "LIMIT 100"
+		splitinput = userstring.split()
+		if len(splitinput) > 1:
+			limitnum = splitinput[-1]
 		print("Printing the top 100 most highly rated products")
+
 		basic_statement = '''
 		SELECT Name, Brand, StarRating, Cost, Categories.Category
 		FROM Products
@@ -523,10 +529,11 @@ def simpleinteractive():
 		ON Categories.Id = Products.Category
 		GROUP BY Brand
 		ORDER BY StarRating
-		DESC LIMIT 100
-		'''
+		DESC {}
+		'''.format(limitnum)
 		cur.execute(basic_statement)
 		conn.commit()
+
 		for row in cur:
 			indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
 			if len(indiv[0]) > 25:
@@ -537,11 +544,11 @@ def simpleinteractive():
 			final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
 			print(final)
 
-
-
-
-
-
+	if "price" in userstring:
+		limitnum = "LIMIT 100"
+		splitinput = userstring.split()
+		if len(splitinput) > 1:
+			limitnum = splitinput[-1]
 
 # avbrand()
 # costPerOz()
@@ -555,7 +562,7 @@ def activeFunc():
 		print(" + + + + + ")
 
 		if userInput == "help":
-			print("products\n	Type if you would like to see simple product information from Ulta.")
+			print("products\n	Type if you would like to see simple product information from Ulta. [You will be prompted for more.]")
 			print("avbrand\n	Opens up a plotly graph on your webbrowser.\n	Displays the average star rating of all brands.")
 			print("ozcost\n	Opens up a plotly graph on your webbrowser.\n	Displays the cost per ounce of a product.")
 			print("starcost\n	Opens up a plotly graph on your webbrowser.\n	Displays a scatter plot comparing the cost of a product and its star rating.")
