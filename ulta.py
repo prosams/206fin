@@ -147,7 +147,7 @@ def getAllProdType(kind, numresult = "500"): #takes in eyes, lips, face, tools â
 def JsonFileCreator(): # this is the func that calls the cache func and uses the other func
 	eyelist = getAllProdType("eyes")
 	eyetup = eyelist
-	liplist = getAllProdType("lips", "1000")
+	liplist = getAllProdType("lips", "1000") # changes the url so that the site displays 1000 products (lol)
 	liptup = liplist
 	facelist = getAllProdType("face")
 	facetup = facelist
@@ -265,214 +265,277 @@ def fillthings(): # this function fills the database with info using the json fi
 		conn.commit()
 
 def avbrand(): # this function sorts by the average star rating of a brand
-	DB_NAME = 'ultadata.db'
+	print("Please be patient.. I'm doing things, this may take a few seconds..")
+
 	try:
-		conn = sqlite3.connect(DB_NAME)
-		cur = conn.cursor()
-	except Error as e:
-		print(e)
-
-	basic_statement = '''
-	SELECT Brand, AVG(StarRating)
-	FROM Products
-	JOIN Categories
-	ON Categories.Id = Products.Category
-	GROUP BY Brand
-	ORDER BY AVG(StarRating) DESC
-	'''
-	cur.execute(basic_statement)
-	plotlytuplist = []
-	for row in cur:
+		DB_NAME = 'ultadata.db'
 		try:
-			pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
-			plotlytuplist.append(pair)
-		except:
-			continue
-	# print(plotlytuplist)
+			conn = sqlite3.connect(DB_NAME)
+			cur = conn.cursor()
+		except Error as e:
+			print(e)
 
-	trace1 = go.Bar(
-		x=[x[0] for x in plotlytuplist],
-		y=[x[1] for x in plotlytuplist]
-		)
-	data = [trace1]
+		basic_statement = '''
+		SELECT Brand, AVG(StarRating)
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		GROUP BY Brand
+		ORDER BY AVG(StarRating) ASC
+		'''
+		cur.execute(basic_statement)
+		plotlytuplist = []
+		for row in cur:
+			try:
+				pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
+				plotlytuplist.append(pair)
+			except:
+				continue
+		# print(plotlytuplist)
 
-	layout = go.Layout(
-				title = "Average Star Rating for Brands Overall",
-				xaxis = dict(
-				title = 'Brand Name',
-				range = len(plotlytuplist)
-			),
-				yaxis = dict(
-				title = 'Average Star Rating (Out of 5 Stars)',
-				range = [0, 5]
-			),
-				height = 1000,
-				width = 2000
-		)
-	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'avrating')
+		trace1 = go.Bar(
+			x=[x[0] for x in plotlytuplist],
+			y=[x[1] for x in plotlytuplist]
+			)
+		data = [trace1]
+
+		layout = go.Layout(
+					title = "Average Star Rating for Brands Overall",
+					xaxis = dict(
+					title = 'Brand Name',
+					range = len(plotlytuplist)
+				),
+					yaxis = dict(
+					title = 'Average Star Rating (Out of 5 Stars)',
+					range = [0, 5]
+				),
+					height = 1000,
+					width = 2000
+			)
+		fig = go.Figure(data=data, layout=layout)
+		py.plot(fig, filename = 'avrating')
+		print("Plotly should be opening a graph in a new window on your browser!")
+	except:
+		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def costPerOz(): # this function calculates the cost per ounce of a product
 	print("Please be patient.. I'm doing things, this may take a few seconds..")
-	DB_NAME = 'ultadata.db'
+
 	try:
-		conn = sqlite3.connect(DB_NAME)
-		cur = conn.cursor()
-	except Error as e:
-		print(e)
-
-	basic_statement = '''
-	SELECT Name, CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL)
-	FROM Products
-	JOIN Categories
-	ON Categories.Id = Products.Category
-	WHERE CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL) IS NOT NULL
-	ORDER BY CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL) DESC
-	'''
-	cur.execute(basic_statement)
-
-	plotlytuplist = []
-	for row in cur:
+		DB_NAME = 'ultadata.db'
 		try:
-			pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
-			plotlytuplist.append(pair)
-		except:
-			continue
-	# print(plotlytuplist)
+			conn = sqlite3.connect(DB_NAME)
+			cur = conn.cursor()
+		except Error as e:
+			print(e)
 
-	trace1 = go.Bar(
-		x=[x[0] for x in plotlytuplist],
-		y=[x[1] for x in plotlytuplist]
-		)
-	data = [trace1]
+		basic_statement = '''
+		SELECT Name, CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL)
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		WHERE CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL) IS NOT NULL
+		ORDER BY CAST(Cost AS DECIMAL)/CAST(ItemSizeOz AS DECIMAL) ASC LIMIT 100
+		'''
+		cur.execute(basic_statement)
 
-	layout = go.Layout(
-				title = "Product Cost Per Ounce",
-				xaxis = dict(
-				title = 'Product Name',
-				range = len(plotlytuplist)
-			),
-				yaxis = dict(
-				title = 'Cost in USD',
-				range = [0, 10000]),
-				height = 1000,
-				width = 2000)
+		plotlytuplist = []
+		for row in cur:
+			try:
+				pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
+				plotlytuplist.append(pair)
+			except:
+				continue
+		# print(plotlytuplist)
 
-	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ultacostperounce')
-	print("Plotly should be opening a graph in a new window on your browser!")
+		trace1 = go.Bar(
+			x=[x[0] for x in plotlytuplist],
+			y=[x[1] for x in plotlytuplist]
+			)
+		data = [trace1]
+
+		layout = go.Layout(
+					title = "Product Cost Per Ounce",
+					xaxis = dict(
+					title = 'Product Name',
+					range = len(plotlytuplist)
+				),
+					yaxis = dict(
+					title = 'Cost in USD',
+					range = [0, 20]),
+					height = 800,
+					width = 2000)
+
+		fig = go.Figure(data=data, layout=layout)
+		py.plot(fig, filename = 'ultacostperounce')
+		print("Plotly should be opening a graph in a new window on your browser!")
+	except:
+		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
 	print("Please be patient.. I'm doing things, this may take a few seconds..") # (to find number of people who would recommend)
-	DB_NAME = 'ultadata.db'
+
 	try:
-		conn = sqlite3.connect(DB_NAME)
-		cur = conn.cursor()
-	except Error as e:
-		print(e)
-
-	basic_statement = '''
-	SELECT Name, (CAST(PercentRec AS DECIMAL)/100)*Reviews
-	FROM Products
-	JOIN Categories
-	ON Categories.Id = Products.Category
-	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
-	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews
-	DESC LIMIT 100
-	'''
-	cur.execute(basic_statement)
-	plotlytuplist = []
-	for row in cur:
+		DB_NAME = 'ultadata.db'
 		try:
-			pair = (row[0], round(float(row[1]), 2)) #this rounds like in project 3
-			plotlytuplist.append(pair)
-		except:
-			continue
-	# print(plotlytuplist)
-	trace1 = go.Bar(
-		x=[x[0] for x in plotlytuplist],
-		y=[x[1] for x in plotlytuplist]
-		)
-	data = [trace1]
+			conn = sqlite3.connect(DB_NAME)
+			cur = conn.cursor()
+		except Error as e:
+			print(e)
 
-	layout = go.Layout(
-				title = "Number of People Who Would Recommend (% Recommend * Number of Reviews)",
-				xaxis = dict(
-				title = 'Product Name',
-				range = len(plotlytuplist)
-			),
-				yaxis = dict(
-				title = 'Number of People Who Would Recommend',
-				range = [0, 12000]),
-				height = 800,
-				width = 1500)
+		basic_statement = '''
+		SELECT Name, (CAST(PercentRec AS DECIMAL)/100)*Reviews
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
+		ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews
+		DESC LIMIT 100
+		'''
+		cur.execute(basic_statement)
+		plotlytuplist = []
+		for row in cur:
+			try:
+				pair = (row[0], round(float(row[1]), 2)) #this rounds like in project 3
+				plotlytuplist.append(pair)
+			except:
+				continue
+		# print(plotlytuplist)
+		trace1 = go.Bar(
+			x=[x[0] for x in plotlytuplist],
+			y=[x[1] for x in plotlytuplist]
+			)
+		data = [trace1]
 
-	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ulta-bar')
-	print("Plotly should be opening a graph in a new window on your browser!")
+		layout = go.Layout(
+					title = "Number of People Who Would Recommend (% Recommend * Number of Reviews)",
+					xaxis = dict(
+					title = 'Product Name',
+					range = len(plotlytuplist)
+				),
+					yaxis = dict(
+					title = 'Number of People Who Would Recommend',
+					range = [0, 12000]),
+					height = 800,
+					width = 1500)
+
+		fig = go.Figure(data=data, layout=layout)
+		py.plot(fig, filename = 'ulta-bar')
+		print("Plotly should be opening a graph in a new window on your browser!")
+	except:
+		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
+
 
 def costNStarCorrelation(): # this function plots the product price against the star rating to see if there is a correlation between the two
 	print("Please be patient.. I'm doing things, this may take a few seconds..")
-	DB_NAME = 'ultadata.db'
 	try:
-		conn = sqlite3.connect(DB_NAME)
-		cur = conn.cursor()
-	except Error as e:
-		print(e)
-	query = "SELECT * FROM 'products'"
-	cur.execute(query)
-
-	basic_statement = '''
-	SELECT starrating, Cost, Name
-	FROM Products
-	JOIN Categories
-	ON Categories.Id = Products.Category
-	WHERE starrating IS NOT NULL
-	ORDER BY Products.starrating DESC
-	'''
-	cur.execute(basic_statement)
-	plotlytuplist = []
-	for row in cur:
+		DB_NAME = 'ultadata.db'
 		try:
-			pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
-			plotlytuplist.append(pair)
-		except:
-			continue
-	# print(plotlytuplist)
+			conn = sqlite3.connect(DB_NAME)
+			cur = conn.cursor()
+		except Error as e:
+			print(e)
+		query = "SELECT * FROM 'products'"
+		cur.execute(query)
 
-	trace1 = go.Scatter(
-			type='scatter',
-			y =[x[0] for x in plotlytuplist],
-			x =[x[1] for x in plotlytuplist],
-			mode = 'markers',
-			name = 'markers',
-			text = [x[2] for x in plotlytuplist] # this names each individual point
+		basic_statement = '''
+		SELECT starrating, Cost, Name
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		WHERE starrating IS NOT NULL
+		ORDER BY Products.starrating DESC
+		'''
+		cur.execute(basic_statement)
+		plotlytuplist = []
+		for row in cur:
+			try:
+				pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
+				plotlytuplist.append(pair)
+			except:
+				continue
+		# print(plotlytuplist)
+
+		trace1 = go.Scatter(
+				type='scatter',
+				y =[x[0] for x in plotlytuplist],
+				x =[x[1] for x in plotlytuplist],
+				mode = 'markers',
+				name = 'markers',
+				text = [x[2] for x in plotlytuplist] # this names each individual point
+				)
+		data = [trace1]
+
+		layout = go.Layout(
+					title = "Correlation Between Cost of Product + Star Rating",
+					xaxis = dict(
+					title = 'Cost of Product',
+					range = len(plotlytuplist)
+				),
+					yaxis = dict(
+					title = 'Star Rating out of Five Stars',
+					range = [0, 5.5]
+				),
+					height = 1000,
+					width = 1000
 			)
-	data = [trace1]
 
-	layout = go.Layout(
-				title = "Correlation Between Cost of Product + Star Rating",
-				xaxis = dict(
-				title = 'Cost of Product',
-				range = len(plotlytuplist)
-			),
-				yaxis = dict(
-				title = 'Star Rating out of Five Stars',
-				range = [0, 5.5]
-			),
-				height = 1000,
-				width = 1000
-		)
+		fig = go.Figure(data=data, layout=layout)
+		py.plot(fig, filename = 'star-cost-correlation')
+		print("Plotly should be opening a graph in a new window on your browser!")
+	except:
+		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
-	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'star-cost-correlation')
-	print("Plotly should be opening a graph in a new window on your browser!")
+# def simpleinteractive():
 
-
-# JsonFileCreator()
-# init_db(DBNAME)
-# fillthings()
 # avbrand()
 # costPerOz()
 # costNStarCorrelation()
 # numberPeopleRecommend()
+
+def activeFunc():
+	userInput = input("Enter a command (or 'help' for some more options): ")
+
+	while userInput != "exit":
+		print(" + + + + + ")
+
+		if userInput == "help":
+			print("products\n	Type if you would like to see simple product information from Ulta.")
+			print("avbrand\n	Opens up a plotly graph on your webbrowser.\n	Displays the average star rating of all brands.")
+			print("ozcost\n	Opens up a plotly graph on your webbrowser.\n	Displays the cost per ounce of a product.")
+			print("starcost\n	Opens up a plotly graph on your webbrowser.\n	Displays a scatter plot comparing the cost of a product and its star rating.")
+			print("numrec\n	Opens up a plotly graph on your webbrowser.\n	Displays the number of people that would recommend a product\n	by multiplying the percentage of people who would recommend a product by the # of reviews.")
+			print("exit\n	Exits the program")
+			print("help\n	Lists available commands (these instructions)")
+
+		elif userInput == 'exit':
+			break
+
+		elif "avbrand" in userInput:
+			print("Calculating the average star rating of all brands..")
+			avbrand()
+		elif "ozcost" in userInput:
+			print("Calculating the cost per ounce of product...")
+			costPerOz()
+		elif "starcost" in userInput:
+			print("Comparing the price of a product to its star rating...")
+			costNStarCorrelation()
+		elif "numrec" in userInput:
+			print("Calculating the number of people who woudl recommend products...")
+			numberPeopleRecommend()
+
+		else:
+			print("Command not recognized: " + userInput)
+			print("Make sure you've typed your command in the proper format.")
+
+		print(" + + + + + ")
+		secondInput = input("Enter a command (or 'help' for some more options): ")
+		userInput = secondInput
+
+if __name__ == "__main__":
+	activeFunc()
+	# JsonFileCreator()
+	# init_db(DBNAME)
+	# fillthings()
+
+	print("Exiting the program... come back soon!")
