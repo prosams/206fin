@@ -280,6 +280,7 @@ def avbrand(): # this function sorts by the average star rating of a brand
 		FROM Products
 		JOIN Categories
 		ON Categories.Id = Products.Category
+		WHERE StarRating IS NOT NULL
 		GROUP BY Brand
 		ORDER BY AVG(StarRating) ASC
 		'''
@@ -342,7 +343,7 @@ def costPerOz(): # this function calculates the cost per ounce of a product
 		plotlytuplist = []
 		for row in cur:
 			try:
-				pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
+				pair = (row[0], round(float(row[1]), 2)) #this rounds like in project 3
 				plotlytuplist.append(pair)
 			except:
 				continue
@@ -486,7 +487,61 @@ def costNStarCorrelation(): # this function plots the product price against the 
 	except:
 		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
-# def simpleinteractive():
+def simpleinteractive():
+	userstring = input("Type either [brand], [generalprod], or _______")
+	conn = sqlite3.connect("ultadata.db")
+	cur = conn.cursor()
+	returnlist = []
+
+	if "brand" in input:
+		print("Printing the brand names and their average star rating.")
+		basic_statement = '''
+		SELECT Brand, AVG(StarRating)
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		WHERE StarRating IS NOT NULL
+		GROUP BY Brand
+		ORDER BY AVG(StarRating) DESC
+		'''
+		cur.execute(basic_statement)
+		conn.commit()
+		for row in cur:
+			indiv = (row[0], round(float(row[1]), 2))
+			returnlist.append(list(indiv))
+		for x in returnlist:
+			final = '{0:25} {1:15}'.format(*x)
+			print(final)
+		print("If you would like to see a Plotly visualization of this data, type [avbrand]")
+
+	if "generalprod" in input:
+		print("Printing the top 100 most highly rated products")
+		basic_statement = '''
+		SELECT Name, Brand, StarRating, Cost, Categories.Category
+		FROM Products
+		JOIN Categories
+		ON Categories.Id = Products.Category
+		GROUP BY Brand
+		ORDER BY StarRating
+		DESC LIMIT 100
+		'''
+		cur.execute(basic_statement)
+		conn.commit()
+		for row in cur:
+			indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
+			if len(indiv[0]) > 25:
+				indiv[0] = indiv[0][:24] + '...'
+			indiv[3] = "   $" + indiv[3]
+			returnlist.append(indiv)
+		for x in returnlist:
+			final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
+			print(final)
+
+
+
+
+
+
 
 # avbrand()
 # costPerOz()
