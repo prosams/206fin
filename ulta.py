@@ -488,67 +488,107 @@ def costNStarCorrelation(): # this function plots the product price against the 
 		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def simpleinteractive():
-	userstring = input("Type either [brand], [generalprod], or _______")
+	userstring = input("Type either [brand], [generalprod], or [price]: ")
 	conn = sqlite3.connect("ultadata.db")
 	cur = conn.cursor()
 	returnlist = []
 
 	if "brand" in userstring:
+		print(" = = = = = = = = = = = = = = = = = =")
 		print("Printing the brand names and their average star rating.")
-		basic_statement = '''
-		SELECT Brand, AVG(StarRating)
-		FROM Products
-		JOIN Categories
-		ON Categories.Id = Products.Category
-		WHERE StarRating IS NOT NULL
-		GROUP BY Brand
-		ORDER BY AVG(StarRating) DESC
-		'''
-		cur.execute(basic_statement)
-		conn.commit()
+		print(" = = = = = = = = = = = = = = = = = =")
 
-		for row in cur:
-			indiv = (row[0], round(float(row[1]), 2))
-			returnlist.append(list(indiv))
-		for x in returnlist:
-			final = '{0:25} {1:15}'.format(*x)
-			print(final)
-		print("If you would like to see a Plotly visualization of this data, type [avbrand]")
+		try:
+			basic_statement = '''
+			SELECT Brand, AVG(StarRating)
+			FROM Products
+			JOIN Categories
+			ON Categories.Id = Products.Category
+			WHERE StarRating IS NOT NULL
+			GROUP BY Brand
+			ORDER BY AVG(StarRating) DESC
+			'''
+			cur.execute(basic_statement)
+			conn.commit()
+
+			for row in cur:
+				indiv = (row[0], round(float(row[1]), 2))
+				returnlist.append(list(indiv))
+			for x in returnlist:
+				final = '{0:25} {1:15}'.format(*x)
+				print(final)
+			print("If you would like to see a Plotly visualization of this data, type [avbrand].")
+		except:
+			print("Something is going wrong. Make sure you've typed in everything correctly.")
+		print("To see more data within the command line, type [products] again.")
 
 	if "generalprod" in userstring:
 		limitnum = "LIMIT 100"
 		splitinput = userstring.split()
 		if len(splitinput) > 1:
 			limitnum = splitinput[-1]
+		print(" = = = = = = = = = = = = = = = = = =")
 		print("Printing the top 100 most highly rated products")
+		print(" = = = = = = = = = = = = = = = = = =")
 
-		basic_statement = '''
-		SELECT Name, Brand, StarRating, Cost, Categories.Category
-		FROM Products
-		JOIN Categories
-		ON Categories.Id = Products.Category
-		GROUP BY Brand
-		ORDER BY StarRating
-		DESC {}
-		'''.format(limitnum)
-		cur.execute(basic_statement)
-		conn.commit()
+		try:
+			basic_statement = '''
+			SELECT Name, Brand, StarRating, Cost, Categories.Category
+			FROM Products
+			JOIN Categories
+			ON Categories.Id = Products.Category
+			GROUP BY Brand
+			ORDER BY StarRating
+			DESC {}
+			'''.format(limitnum)
+			cur.execute(basic_statement)
+			conn.commit()
 
-		for row in cur:
-			indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
-			if len(indiv[0]) > 25:
-				indiv[0] = indiv[0][:24] + '...'
-			indiv[3] = "   $" + indiv[3]
-			returnlist.append(indiv)
-		for x in returnlist:
-			final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
-			print(final)
+			for row in cur:
+				indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
+				if len(indiv[0]) > 25:
+					indiv[0] = indiv[0][:24] + '...'
+				indiv[3] = "   $" + indiv[3]
+				returnlist.append(indiv)
+			for x in returnlist:
+				final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
+				print(final)
+		except:
+			print("Something is going wrong. Make sure you've typed stuff in correctly.")
+		print("To see more data within the command line, type [products] again.")
 
 	if "price" in userstring:
 		limitnum = "LIMIT 100"
 		splitinput = userstring.split()
+		print(splitinput)
 		if len(splitinput) > 1:
 			limitnum = splitinput[-1]
+
+		try:
+			basic_statement = '''
+			SELECT Name, Brand, StarRating, Cost, Categories.Category
+			FROM Products
+			JOIN Categories
+			ON Categories.Id = Products.Category
+			GROUP BY Brand
+			ORDER BY Cost
+			ASC {}
+			'''.format(limitnum)
+			cur.execute(basic_statement)
+			conn.commit()
+
+			for row in cur:
+				indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
+				if len(indiv[0]) > 25:
+					indiv[0] = indiv[0][:24] + '...'
+				indiv[3] = "   $" + indiv[3]
+				returnlist.append(indiv)
+			for x in returnlist:
+				final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
+				print(final)
+		except:
+			print("Something's going wrong. Make sure you're typing everything in correctly.")
+		print("To see more data within the command line, type [products] again.")
 
 # avbrand()
 # costPerOz()
@@ -562,7 +602,7 @@ def activeFunc():
 		print(" + + + + + ")
 
 		if userInput == "help":
-			print("products\n	Type if you would like to see simple product information from Ulta. [You will be prompted for more.]")
+			print("products\n	Type if you would like to see simple product information from Ulta. There are three more specific commands: [brand], [price], and [generalprod].")
 			print("avbrand\n	Opens up a plotly graph on your webbrowser.\n	Displays the average star rating of all brands.")
 			print("ozcost\n	Opens up a plotly graph on your webbrowser.\n	Displays the cost per ounce of a product.")
 			print("starcost\n	Opens up a plotly graph on your webbrowser.\n	Displays a scatter plot comparing the cost of a product and its star rating.")
@@ -572,6 +612,9 @@ def activeFunc():
 
 		elif userInput == 'exit':
 			break
+
+		elif "products" in userInput:
+			simpleinteractive()
 
 		elif "avbrand" in userInput:
 			print("Calculating the average star rating of all brands..")
