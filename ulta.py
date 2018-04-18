@@ -6,18 +6,9 @@ from bs4 import BeautifulSoup
 import sqlite3
 import random
 
-class UltaProd:
-	def __init__(self):
+class IdidntKnowINeededAClass:
+	def __init__(self, name):
 		self.name = name
-		self.brand = brand
-		self.cat = cat
-		self.cost = cost
-		self.retailnum = "No retail item number available."
-		self.sizeoz = "No size available."
-		self.percent = "No percent who would recommend available."
-		self.star = "No star rating available."
-		self.sale = "Cannot tell if product is on sale."
-		self.url = url
 
 CACHE_FNAME = 'cache.json'
 try:
@@ -28,7 +19,7 @@ try:
 except:
 	CACHE_DICTION = {}
 
-def cacheRequest(url):
+def cacheRequest(url): # this is called in other functions
 	if url in CACHE_DICTION:
 		print("Getting cached data...")
 		return CACHE_DICTION[url]
@@ -42,26 +33,28 @@ def cacheRequest(url):
 		fw.close() # Close the open file
 		return CACHE_DICTION[url]
 
-def uniqueUltaUrl(type): #can be eyes, face, lips, and tools
+def uniqueUltaUrl(type, numresult = "500"): #can be eyes, face, lips, and tools — this is called in other funcs
 	base = "https://www.ulta.com/"
 	if type == "eyes": # https://www.ulta.com/makeup-eyes?N=26yd&No=0&Nrpp=1000
 		category = "makeup-eyes"
-		end = "?N=26yd&No=0&Nrpp=500"
+		end = "?N=26yd&No=0&Nrpp={}".format(numresult)
 	elif type == "face":
 		category = "makeup-face"
-		end = "?N=26y3&No=0&Nrpp=500"
+		end = "?N=26y3&No=0&Nrpp={}".format(numresult)
 	elif type == "lips":
 		category = "makeup-lips"
-		end = "?N=26yq&No=0&Nrpp=1000"
+		end = "?N=26yq&No=0&Nrpp={}".format(numresult)
 	elif type == "tools":
 		category = "tools-brushes-makeup-brushes-tools"
-		end = "?N=27hn&No=0&Nrpp=1000"
+		end = "?N=27hn&No=0&Nrpp={}".format(numresult)
 	total = base + category + end
 	return total
 
-def getAllProdType(kind): #takes in eyes, lips, face, tools
+# print(uniqueUltaUrl("eyes", "48"))
+
+def getAllProdType(kind, numresult = "500"): #takes in eyes, lips, face, tools — also called in other funcs
 	returnlist = []
-	first_url = uniqueUltaUrl(kind)
+	first_url = uniqueUltaUrl(kind, numresult)
 	page = cacheRequest(first_url)
 	soup = BeautifulSoup(page, 'html.parser')
 	elements = soup.find_all(class_ = "productQvContainer")
@@ -151,14 +144,14 @@ def getAllProdType(kind): #takes in eyes, lips, face, tools
 	return returnlist
 
  # ************ THIS CODE HERE IS TO CREATE THE JSON FILE THAT WILL BE USED FOR PRODUCTS TABLE *******
-def JsonFileCreator():
+def JsonFileCreator(): # this is the func that calls the cache func and uses the other func
 	eyelist = getAllProdType("eyes")
 	eyetup = eyelist
-	liplist = getAllProdType("lips")
+	liplist = getAllProdType("lips", "1000")
 	liptup = liplist
 	facelist = getAllProdType("face")
 	facetup = facelist
-	toolist = getAllProdType("tools")
+	toolist = getAllProdType("tools", "1000")
 	tooltup = toolist
 	allprodDict = {}
 	allprodDict["1"] = eyetup
@@ -173,7 +166,7 @@ def JsonFileCreator():
  # ******************* code for json file ends here **********************
 
 DBNAME = "ultadata.db"
-def init_db(x):
+def init_db(x): # this function creates the database - initializes the (empty) tables!
 	conn = sqlite3.connect(DBNAME)
 	cur = conn.cursor()
 	statement = '''
@@ -218,7 +211,7 @@ def init_db(x):
 	cur.execute(statement3)
 	conn.commit()
 
-def fillthings():
+def fillthings(): # this function fills the database with info using the json file we made earlier
 	conn = sqlite3.connect("ultadata.db")
 	cur = conn.cursor()
 	myfile = open("allprodlist.json", 'r')
@@ -271,55 +264,6 @@ def fillthings():
 		cur.execute(statement, insert)
 		conn.commit()
 
-def starRatingFunc():
-	DB_NAME = 'ultadata.db'
-	try:
-		conn = sqlite3.connect(DB_NAME)
-		cur = conn.cursor()
-	except Error as e:
-		print(e)
-
-	basic_statement = '''
-	SELECT Name, starrating
-	FROM Products
-	JOIN Categories
-	ON Categories.Id = Products.Category
-	ORDER BY Products.starrating DESC
-	'''
-	strulta = str(basic_statement)
-	cur.execute(strulta)
-	plotlytuplist = []
-	for row in cur:
-		try:
-			pair = (row[0], round(float(row[1]), 1)) #this rounds like in project 3
-			plotlytuplist.append(pair)
-		except:
-			continue
-	# print(plotlytuplist)
-
-	trace1 = go.Bar(
-			type='scatter',
-			x=[x[0] for x in plotlytuplist],
-			y=[x[1] for x in plotlytuplist],
-			)
-	data = [trace1]
-
-	layout = go.Layout(
-				title = "Products ordered by star rating",
-				xaxis = dict(
-				title = 'Name of Product',
-				range=len(plotlytuplist)
-			),
-				yaxis = dict(
-				title = 'Star Rating',
-				range = [0, 5]
-			),
-				height = 1000,
-				width = 2000
-		)
-	fig = go.Figure(data=data, layout=layout)
-	py.plot(fig, filename = 'ultastarrating')
-
 def avbrand(): # this function sorts by the average star rating of a brand
 	DB_NAME = 'ultadata.db'
 	try:
@@ -368,7 +312,8 @@ def avbrand(): # this function sorts by the average star rating of a brand
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'avrating')
 
-def costPerOz():
+def costPerOz(): # this function calculates the cost per ounce of a product
+	print("Please be patient.. I'm doing things, this may take a few seconds..")
 	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
@@ -415,9 +360,11 @@ def costPerOz():
 
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ultacostperounce')
+	print("Plotly should be opening a graph in a new window on your browser!")
 
 def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
-	DB_NAME = 'ultadata.db'   # (to find number of people who would recommend)
+	print("Please be patient.. I'm doing things, this may take a few seconds..") # (to find number of people who would recommend)
+	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
 		cur = conn.cursor()
@@ -431,7 +378,7 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 	ON Categories.Id = Products.Category
 	WHERE (CAST(PercentRec AS DECIMAL)/100)*Reviews IS NOT NULL
 	ORDER BY (CAST(PercentRec AS DECIMAL)/100)*Reviews
-	ASC LIMIT 100
+	DESC LIMIT 100
 	'''
 	cur.execute(basic_statement)
 	plotlytuplist = []
@@ -456,14 +403,16 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 			),
 				yaxis = dict(
 				title = 'Number of People Who Would Recommend',
-				range = [0, 50]),
+				range = [0, 12000]),
 				height = 800,
 				width = 1500)
 
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'ulta-bar')
+	print("Plotly should be opening a graph in a new window on your browser!")
 
-def costNStarCorrelation():
+def costNStarCorrelation(): # this function plots the product price against the star rating to see if there is a correlation between the two
+	print("Please be patient.. I'm doing things, this may take a few seconds..")
 	DB_NAME = 'ultadata.db'
 	try:
 		conn = sqlite3.connect(DB_NAME)
@@ -489,7 +438,7 @@ def costNStarCorrelation():
 			plotlytuplist.append(pair)
 		except:
 			continue
-	print(plotlytuplist)
+	# print(plotlytuplist)
 
 	trace1 = go.Scatter(
 			type='scatter',
@@ -517,13 +466,13 @@ def costNStarCorrelation():
 
 	fig = go.Figure(data=data, layout=layout)
 	py.plot(fig, filename = 'star-cost-correlation')
+	print("Plotly should be opening a graph in a new window on your browser!")
 
 
 # JsonFileCreator()
 # init_db(DBNAME)
 # fillthings()
-# starRatingFunc() # ask about this func it ugly
 # avbrand()
 # costPerOz()
 # costNStarCorrelation()
-numberPeopleRecommend()
+# numberPeopleRecommend()
