@@ -94,16 +94,22 @@ class TestSQL(unittest.TestCase):
         self.assertTrue(len(result_list) < 150)
         self.assertEqual(result_list[0][1], 5.0)
 
+        conn.close()
+
+    def testbasicbrand(self):
+        conn = sqlite3.connect("ultadata.db")
+        cur = conn.cursor()
+
         state = '''SELECT Brand FROM Products GROUP BY Brand'''
         r = cur.execute(state)
         list = r.fetchall()
+
         self.assertIn(('Revlon',), list)
         self.assertIn(('Maybelline',), list)
         self.assertIn(('ULTA',), list)
         self.assertIn(('BECCA',), list)
 
-
-
+        conn.close()
 
 
 unittest.main(verbosity = 2)
