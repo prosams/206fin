@@ -6,9 +6,19 @@ from bs4 import BeautifulSoup
 import sqlite3
 import random
 
-class IdidntKnowINeededAClass:
-	def __init__(self, name):
+class UltaProd:
+	def __init__(self, name, brand, cat, cost, retailnum, sizeoz = "No size available.", percent = "No percent recommend available.", reviews = "No reviews available.", star = "No star rating available.", sale = "No sale status available.", url = "No url available."):
 		self.name = name
+		self.brand = brand
+		self.cat = cat
+		self.cost = cost
+		self.retailnum = retailnum
+		self.sizeoz = sizeoz
+		self.percent = percent
+		self.reviews = reviews
+		self.star = star
+		self.sale = sale
+		self.url = url
 
 CACHE_FNAME = 'cache.json'
 try:
@@ -564,59 +574,51 @@ def simpleinteractive():
 
 	else:
 		print("That is not a recognized 'Product' related command.")
-# avbrand()
-# costPerOz()
-# costNStarCorrelation()
-# numberPeopleRecommend()
+
+def helptextloader():
+	with open('help.txt') as f:
+		return f.read()
 
 def activeFunc():
-	userInput = ''
+	halp = helptextloader()
+	userInput = input("Enter a command (or 'help' for some more options): ")
 
 	while userInput != "exit":
 		print(" + + + + + + + + + + + + + + + + + + + + + + + + + +")
-		userInput = input("Enter a command (or 'help' for some more options): ")
+		# processor = userInput
 
-		processor = userInput
+		if userInput == "help":
+			print(halp)
 
-		if processor == "help":
-			print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-			print(">>>>>>>>>>>>>>>>>>>> H E L P  M E N U <<<<<<<<<<<<<<<<<<<")
-			print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-			print("products\n	Type if you would like to see simple product information from Ulta.\n	There are two more specific commands: brand and generalprod.\n	Note that these two commands will only work once you've inputted products.")
-			print("avbrand\n	Opens up a plotly graph on your webbrowser.\n	Displays the average star rating of all brands.")
-			print("ozcost\n	Opens up a plotly graph on your webbrowser.\n	Displays the cost per ounce of a product.")
-			print("starcost\n	Opens up a plotly graph on your webbrowser.\n	Displays a scatter plot comparing the cost of a product and its star rating.")
-			print("numrec\n	Opens up a plotly graph on your webbrowser.\n	Displays the # people that would recommend a product\n	by multiplying the percent of people who would recommend a product by # of reviews.")
-			print("exit\n	Exits the program")
-			print("help\n	Lists available commands (these instructions)")
-			continue
-		elif processor == 'exit':
+		elif userInput == 'exit':
 			break
 
-		elif "products" in processor:
+		elif "products" in userInput:
 			simpleinteractive()
-			continue
-		elif "avbrand" in processor:
+
+		elif "avbrand" in userInput:
 			print("Calculating the average star rating of all brands..")
 			avbrand()
-			continue
-		elif "ozcost" in processor:
+
+		elif "ozcost" in userInput:
 			print("Calculating the cost per ounce of product...")
 			costPerOz()
-			continue
-		elif "starcost" in processor:
+
+		elif "starcost" in userInput:
 			print("Comparing the price of a product to its star rating...")
 			costNStarCorrelation()
-			continue
-		elif "numrec" in processor:
+
+		elif "numrec" in userInput:
 			print("Calculating the number of people who woudl recommend products...")
 			numberPeopleRecommend()
-			continue
+
 		else:
-			print("Command not recognized: " + processor)
+			print("Command not recognized: " + userInput)
 			print("Make sure you've typed your command in the proper format.")
-			continue
+
 		print(" + + + + + + + + + + + + + + + + + + + + + + + + + +")
+		secondInput = input("Enter a command (or 'help' for some more options): ")
+		userInput = secondInput
 
 
 if __name__ == "__main__":

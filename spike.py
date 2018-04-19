@@ -953,23 +953,53 @@ conn = sqlite3.connect("ultadata.db")
 cur = conn.cursor()
 returnlist = []
 
+# basic_statement = '''
+# SELECT Name, Brand, StarRating, Cost, Categories.Category
+# FROM Products
+# JOIN Categories
+# ON Categories.Id = Products.Category
+# GROUP BY Brand
+# ORDER BY StarRating
+# DESC {}
+# '''.format(limitnum)
+# cur.execute(basic_statement)
+# conn.commit()
+#
+# for row in cur:
+#     indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
+#     if len(indiv[0]) > 25:
+#         indiv[0] = indiv[0][:24] + '...'
+#     indiv[3] = "   $" + indiv[3]
+#     returnlist.append(indiv)
+# for x in returnlist:
+#     final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
+#     print(final)
+returnlist = []
+limitnum = "LIMIT 100"
 basic_statement = '''
 SELECT Name, Brand, StarRating, Cost, Categories.Category
 FROM Products
 JOIN Categories
 ON Categories.Id = Products.Category
 GROUP BY Brand
-ORDER BY StarRating
-DESC LIMIT 100
-'''
+ORDER BY Cost
+ASC {}
+'''.format(limitnum)
 cur.execute(basic_statement)
 conn.commit()
+
 for row in cur:
-	indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
-	if len(indiv[0]) > 25:
-		indiv[0] = indiv[0][:24] + '...'
-	indiv[3] = "   $" + indiv[3]
-	returnlist.append(indiv)
+    indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
+    for x in indiv:
+        if x == None:
+            x = "N/A"
+    if len(indiv[0]) > 25:
+        indiv[0] = indiv[0][:24] + '...'
+    indiv[3] = "   $" + indiv[3]
+    print(indiv)
+    returnlist.append(indiv)
+
+print(returnlist)
 for x in returnlist:
-	final = '{0:30} {1:23} {2:10} {3:15} {4:10}'.format(*x)
-	print(final)
+    final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
+    print(final)

@@ -1,0 +1,33 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+>>>>>>>>>>>>>>>>>>>> H E L P  M E N U <<<<<<<<<<<<<<<<<<<
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+products
+  Type if you would like to see simple product information from Ulta.
+	There are two more specific commands: brand and generalprod.
+	Note that these two commands will only work once you've inputted products.
+	Note that <generalprod> also has the option for the user to specify the number of results
+	that they want to return, by typing in something like <generalprod 500> or <generalprod 50>.
+
+avbrand
+	Opens up a plotly graph on your webbrowser.
+	Displays the average star rating of all brands.
+
+ozcost
+	Opens up a plotly graph on your webbrowser.
+	Displays the cost per ounce of a product.
+
+starcost
+	Opens up a plotly graph on your webbrowser.
+	Displays a scatter plot comparing the cost of a product and its star rating.
+
+numrec
+	Opens up a plotly graph on your webbrowser.
+	Displays the # people that would recommend a product
+	by multiplying the percent of people who would recommend a product by # of reviews.
+
+exit
+	Exits the program
+  
+help
+	Lists available commands (these instructions)

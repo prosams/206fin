@@ -50,7 +50,60 @@ class TestData(unittest.TestCase):
         self.assertTrue(float(liplist[-1][8]) <= 5.0)
 
 class TestSQL(unittest.TestCase):
-    
+
+    def testProdDB(self):
+        conn = sqlite3.connect("ultadata.db")
+        cur = conn.cursor()
+
+        sql = 'SELECT DISTINCT Category FROM Products'
+        results = cur.execute(sql)
+        result_list = results.fetchall()
+        self.assertEqual(len(result_list), 4)
+
+        statement = '''
+        SELECT Name, StarRating, Cost, Categories.Category
+        FROM Products
+        JOIN Categories
+        ON Categories.Id = Products.Category
+        ORDER BY StarRating
+        DESC'''
+        categorylist = ["Tool", "Lip", "Eye", "Face"]
+        result = cur.execute(statement)
+        resultlist = result.fetchall()
+        self.assertTrue(resultlist[0][-1] in categorylist) #this tests the joins
+        self.assertTrue(float(resultlist[5][1]) <= 5.0)
+        self.assertEqual(len(resultlist[0]), 4)
+        conn.close()
+
+    def testavbrand(self):
+        conn = sqlite3.connect("ultadata.db")
+        cur = conn.cursor()
+
+        statement = '''
+        SELECT Brand, AVG(StarRating)
+        FROM Products
+        JOIN Categories
+        ON Categories.Id = Products.Category
+        WHERE StarRating IS NOT NULL
+        GROUP BY Brand
+        ORDER BY AVG(StarRating) DESC
+        '''
+        results = cur.execute(statement)
+        result_list = results.fetchall()
+
+        self.assertTrue(len(result_list) < 150)
+        self.assertEqual(result_list[0][1], 5.0)
+
+        state = '''SELECT Brand FROM Products GROUP BY Brand'''
+        r = cur.execute(state)
+        list = r.fetchall()
+        self.assertIn(('Revlon',), list)
+        self.assertIn(('Maybelline',), list)
+        self.assertIn(('ULTA',), list)
+        self.assertIn(('BECCA',), list)
+
+
+
 
 
 unittest.main(verbosity = 2)
