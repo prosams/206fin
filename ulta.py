@@ -317,7 +317,7 @@ def avbrand(): # this function sorts by the average star rating of a brand
 		py.plot(fig, filename = 'avrating')
 		print("Plotly should be opening a graph in a new window on your browser!")
 	except:
-		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
+		print("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def costPerOz(): # this function calculates the cost per ounce of a product
 	print("Please be patient.. I'm doing things, this may take a few seconds..")
@@ -371,7 +371,7 @@ def costPerOz(): # this function calculates the cost per ounce of a product
 		py.plot(fig, filename = 'ultacostperounce')
 		print("Plotly should be opening a graph in a new window on your browser!")
 	except:
-		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
+		print("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def numberPeopleRecommend():  # this is the percent of people who would recommend times the number of reviews
 	print("Please be patient.. I'm doing things, this may take a few seconds..") # (to find number of people who would recommend)
@@ -424,39 +424,41 @@ def numberPeopleRecommend():  # this is the percent of people who would recommen
 		py.plot(fig, filename = 'ulta-bar')
 		print("Plotly should be opening a graph in a new window on your browser!")
 	except:
-		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
+		print("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 
 def costNStarCorrelation(): # this function plots the product price against the star rating to see if there is a correlation between the two
 	print("Please be patient.. I'm doing things, this may take a few seconds..")
-	try:
-		DB_NAME = 'ultadata.db'
-		try:
-			conn = sqlite3.connect(DB_NAME)
-			cur = conn.cursor()
-		except Error as e:
-			print(e)
-		query = "SELECT * FROM 'products'"
-		cur.execute(query)
 
-		basic_statement = '''
-		SELECT starrating, Cost, Name
-		FROM Products
-		JOIN Categories
-		ON Categories.Id = Products.Category
-		WHERE starrating IS NOT NULL
-		ORDER BY Products.starrating DESC
-		'''
-		cur.execute(basic_statement)
-		plotlytuplist = []
-		for row in cur:
-			try:
-				pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
-				plotlytuplist.append(pair)
-			except:
-				continue
+	DB_NAME = 'ultadata.db'
+	try:
+		conn = sqlite3.connect(DB_NAME)
+		cur = conn.cursor()
+	except Error as e:
+		print(e)
+	query = "SELECT * FROM 'products'"
+	cur.execute(query)
+
+	basic_statement = '''
+	SELECT starrating, Cost, Name
+	FROM Products
+	JOIN Categories
+	ON Categories.Id = Products.Category
+	WHERE starrating IS NOT NULL
+	ORDER BY Products.starrating DESC
+	'''
+	cur.execute(basic_statement)
+
+	plotlytuplist = []
+	for row in cur:
+		try:
+			pair = (row[0], round(float(row[1]), 1), row[2]) #this rounds like in project 3
+			plotlytuplist.append(pair)
+		except:
+			continue
 		# print(plotlytuplist)
 
+	try:
 		trace1 = go.Scatter(
 				type='scatter',
 				y =[x[0] for x in plotlytuplist],
@@ -485,18 +487,18 @@ def costNStarCorrelation(): # this function plots the product price against the 
 		py.plot(fig, filename = 'star-cost-correlation')
 		print("Plotly should be opening a graph in a new window on your browser!")
 	except:
-		return("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
+		print("Plotly seems to be throwing a tantrum... Wait a little bit, try a different command, and come back to this in a minute or so. ")
 
 def simpleinteractive():
-	userstring = input("Type either [brand], [generalprod], or [price]: ")
+	userstring = input("Type either brand or generalprod: ")
 	conn = sqlite3.connect("ultadata.db")
 	cur = conn.cursor()
 	returnlist = []
 
 	if "brand" in userstring:
-		print(" = = = = = = = = = = = = = = = = = =")
+		print(" = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
 		print("Printing the brand names and their average star rating.")
-		print(" = = = = = = = = = = = = = = = = = =")
+		print(" = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
 
 		try:
 			basic_statement = '''
@@ -522,14 +524,18 @@ def simpleinteractive():
 			print("Something is going wrong. Make sure you've typed in everything correctly.")
 		print("To see more data within the command line, type [products] again.")
 
-	if "generalprod" in userstring:
-		limitnum = "LIMIT 100"
+	elif "generalprod" in userstring:
+
+		limitnum = "100"
 		splitinput = userstring.split()
+		print(splitinput)
 		if len(splitinput) > 1:
 			limitnum = splitinput[-1]
-		print(" = = = = = = = = = = = = = = = = = =")
-		print("Printing the top 100 most highly rated products")
-		print(" = = = = = = = = = = = = = = = = = =")
+			print(limitnum)
+
+		print(" = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
+		print("Printing the top {} most highly rated products".format(limitnum))
+		print(" = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =")
 
 		try:
 			basic_statement = '''
@@ -537,9 +543,8 @@ def simpleinteractive():
 			FROM Products
 			JOIN Categories
 			ON Categories.Id = Products.Category
-			GROUP BY Brand
 			ORDER BY StarRating
-			DESC {}
+			DESC LIMIT {}
 			'''.format(limitnum)
 			cur.execute(basic_statement)
 			conn.commit()
@@ -557,85 +562,62 @@ def simpleinteractive():
 			print("Something is going wrong. Make sure you've typed stuff in correctly.")
 		print("To see more data within the command line, type [products] again.")
 
-	if "price" in userstring:
-		limitnum = "LIMIT 100"
-		splitinput = userstring.split()
-		print(splitinput)
-		if len(splitinput) > 1:
-			limitnum = splitinput[-1]
-
-		try:
-			basic_statement = '''
-			SELECT Name, Brand, StarRating, Cost, Categories.Category
-			FROM Products
-			JOIN Categories
-			ON Categories.Id = Products.Category
-			GROUP BY Brand
-			ORDER BY Cost
-			ASC {}
-			'''.format(limitnum)
-			cur.execute(basic_statement)
-			conn.commit()
-
-			for row in cur:
-				indiv = [row[0], row[1], row[2], str(row[3]), row[4]]
-				if len(indiv[0]) > 25:
-					indiv[0] = indiv[0][:24] + '...'
-				indiv[3] = "   $" + indiv[3]
-				returnlist.append(indiv)
-			for x in returnlist:
-				final = '{0:30} {1:23} {2:10} {3:14} {4:10}'.format(*x)
-				print(final)
-		except:
-			print("Something's going wrong. Make sure you're typing everything in correctly.")
-		print("To see more data within the command line, type [products] again.")
-
+	else:
+		print("That is not a recognized 'Product' related command.")
 # avbrand()
 # costPerOz()
 # costNStarCorrelation()
 # numberPeopleRecommend()
 
 def activeFunc():
-	userInput = input("Enter a command (or 'help' for some more options): ")
+	userInput = ''
 
 	while userInput != "exit":
-		print(" + + + + + ")
+		print(" + + + + + + + + + + + + + + + + + + + + + + + + + +")
+		userInput = input("Enter a command (or 'help' for some more options): ")
 
-		if userInput == "help":
-			print("products\n	Type if you would like to see simple product information from Ulta. There are three more specific commands: [brand], [price], and [generalprod].")
+		processor = userInput
+
+		if processor == "help":
+			print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+			print(">>>>>>>>>>>>>>>>>>>> H E L P  M E N U <<<<<<<<<<<<<<<<<<<")
+			print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+			print("products\n	Type if you would like to see simple product information from Ulta.\n	There are two more specific commands: brand and generalprod.\n	Note that these two commands will only work once you've inputted products.")
 			print("avbrand\n	Opens up a plotly graph on your webbrowser.\n	Displays the average star rating of all brands.")
 			print("ozcost\n	Opens up a plotly graph on your webbrowser.\n	Displays the cost per ounce of a product.")
 			print("starcost\n	Opens up a plotly graph on your webbrowser.\n	Displays a scatter plot comparing the cost of a product and its star rating.")
-			print("numrec\n	Opens up a plotly graph on your webbrowser.\n	Displays the number of people that would recommend a product\n	by multiplying the percentage of people who would recommend a product by the # of reviews.")
+			print("numrec\n	Opens up a plotly graph on your webbrowser.\n	Displays the # people that would recommend a product\n	by multiplying the percent of people who would recommend a product by # of reviews.")
 			print("exit\n	Exits the program")
 			print("help\n	Lists available commands (these instructions)")
-
-		elif userInput == 'exit':
+			continue
+		elif processor == 'exit':
 			break
 
-		elif "products" in userInput:
+		elif "products" in processor:
 			simpleinteractive()
-
-		elif "avbrand" in userInput:
+			continue
+		elif "avbrand" in processor:
 			print("Calculating the average star rating of all brands..")
 			avbrand()
-		elif "ozcost" in userInput:
+			continue
+		elif "ozcost" in processor:
 			print("Calculating the cost per ounce of product...")
 			costPerOz()
-		elif "starcost" in userInput:
+			continue
+		elif "starcost" in processor:
 			print("Comparing the price of a product to its star rating...")
 			costNStarCorrelation()
-		elif "numrec" in userInput:
+			continue
+		elif "numrec" in processor:
 			print("Calculating the number of people who woudl recommend products...")
 			numberPeopleRecommend()
-
+			continue
 		else:
-			print("Command not recognized: " + userInput)
+			print("Command not recognized: " + processor)
 			print("Make sure you've typed your command in the proper format.")
+			continue
+		print(" + + + + + + + + + + + + + + + + + + + + + + + + + +")
 
-		print(" + + + + + ")
-		secondInput = input("Enter a command (or 'help' for some more options): ")
-		userInput = secondInput
 
 if __name__ == "__main__":
 	activeFunc()
