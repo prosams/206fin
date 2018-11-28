@@ -1,5 +1,6 @@
 # 206fin
-final project for si 206: scraping and crawling ulta
+Ulta Beauty User Tool
+final project for si 206: scraping and crawling the Ulta Beauty Website
 -------------------------
 Data sources used: Everything came from https://www.ulta.com, more specifically, the primary Eye, Lip, Face, and Tools pages.
 -------------------------
